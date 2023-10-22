@@ -7,8 +7,10 @@
 
 import Foundation
 
+/// Localite is a lightweight localization package designed for remote management of strings files.
 public class Localite {
     
+    /// Returns the shared Localite object.
     public static let shared = Localite()
     
     internal var localiteBundle: Bundle?
@@ -29,14 +31,27 @@ public class Localite {
         swizzleLocalization()
     }
     
-    public func configure(using stringsFileUrl: URL, for language: String) {
+    /// Initial Localite configuration. Call this method on startup or on selected language change.
+    /// If a `stringsFileUrl` is not provided, Localite will attempt to load a cached strings file for the selected language.
+    /// - Parameters:
+    ///   - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
+    ///   - language: The currently selected language to load.
+    public func configure(using stringsFileUrl: URL? = nil, for language: String) {
         computeLocaliteBundle(for: language)
-        fetchStringsFile(using: stringsFileUrl, for: language)
+        
+        if let stringsFileUrl {
+            fetchStringsFile(using: stringsFileUrl, for: language)
+        }
     }
     
+    ///  Clears Localite's cache, including any cached strings files and content.
     public func clearCache() {
         localiteBundle = nil
-        // TODO: Clear cacheFolder content
+        
+        guard let cacheFolderUrl else { return }
+        
+        try? FileManager.default.removeItem(at: cacheFolderUrl)
+        createCacheDirectoryIfNeeded()
     }
     
     private func createCacheDirectoryIfNeeded() {
@@ -46,7 +61,9 @@ public class Localite {
     }
     
     private func computeLocaliteBundle(for language: String) {
-        if let fileUrl = cacheFolderUrl?.appendingPathComponent(language) {
+        if let fileUrl = cacheFolderUrl?.appendingPathComponent(language),
+           FileManager.default.fileExists(atPath: fileUrl.relativePath) {
+            
             localiteBundle = Bundle(path: fileUrl.relativePath)
         }
     }

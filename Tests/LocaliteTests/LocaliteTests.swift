@@ -12,13 +12,18 @@ final class LocaliteTests: XCTestCase {
         Localite.shared.clearCache()
     }
     
-    private func configureLocalite(using stringsFileName: String, for language: String) {
-        guard let bundlePath = Bundle.module.path(forResource: stringsFileName, ofType: "strings") else {
-            XCTFail("Resource not found")
-            return
+    private func configureLocalite(using stringsFileName: String? = nil, for language: String) {
+        var url: URL?
+        
+        if let stringsFileName {
+            guard let bundlePath = Bundle.module.path(forResource: stringsFileName, ofType: "strings") else {
+                XCTFail("Resource not found")
+                return
+            }
+    
+            url = URL(fileURLWithPath: bundlePath)
         }
         
-        let url = URL(fileURLWithPath: bundlePath)
         Localite.shared.configure(using: url, for: language)
         sleep(1)
     }
@@ -27,6 +32,10 @@ final class LocaliteTests: XCTestCase {
         configureLocalite(using: "english", for: "en")
         Localite.shared.clearCache()
         
+        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello")
+        
+        // Make sure cached files are cleared as well
+        configureLocalite(for: "en")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello")
     }
     
@@ -39,5 +48,9 @@ final class LocaliteTests: XCTestCase {
         
         configureLocalite(using: "japanese", for: "ja")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "こんにちは、 世界")
+        
+        // Make sure cached strings file is loaded properly, when a url is not provided
+        configureLocalite(for: "en")
+        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello World")
     }
 }
