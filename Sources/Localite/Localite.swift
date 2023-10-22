@@ -34,6 +34,11 @@ public class Localite {
         fetchStringsFile(using: stringsFileUrl, for: language)
     }
     
+    public func clearCache() {
+        localiteBundle = nil
+        // TODO: Clear cacheFolder content
+    }
+    
     private func createCacheDirectoryIfNeeded() {
         if let cacheFolderUrl, !FileManager.default.fileExists(atPath: cacheFolderUrl.relativePath) {
             try? FileManager.default.createDirectory(atPath: cacheFolderUrl.relativePath, withIntermediateDirectories: false)
@@ -49,14 +54,14 @@ public class Localite {
     private func fetchStringsFile(using url: URL, for language: String) {
         session.dataTask(with: URLRequest(url: url)) { [unowned self] data, _, error in
             guard let data, error == nil else {
-                debugPrint("Localite error - Fetching failed - " + (error?.localizedDescription ?? ""))
+                print("Localite error - Fetching failed - " + (error?.localizedDescription ?? ""))
                 return
             }
             
             do {
                 try store(data, for: language)
             } catch(let error) {
-                debugPrint("Localite error - File caching failed - " + error.localizedDescription)
+                print("Localite error - File caching failed - " + error.localizedDescription)
             }
         }
         .resume()
@@ -75,7 +80,7 @@ public class Localite {
         try data.write(to: fileUrl)
         
         computeLocaliteBundle(for: language)
-        debugPrint("Localite - \(language) file loaded successfully")
+        print("Localite - \(language) file loaded successfully")
     }
     
     private func swizzleLocalization() {

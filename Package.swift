@@ -18,6 +18,8 @@ let package = Package(
             name: "Localite"),
         .testTarget(
             name: "LocaliteTests",
-            dependencies: ["Localite"]),
+            dependencies: ["Localite"],
+            resources: [.process("Resources")]
+        ),
     ]
 )
