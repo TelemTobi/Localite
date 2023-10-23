@@ -15,7 +15,8 @@ public class Localite {
     
     internal var localiteBundle: Bundle?
     
-    private var session = URLSession(configuration: .default)
+    private let session = URLSession(configuration: .default)
+    private let userSettings = UserSettings()
     
     private var cacheFolderUrl: URL? {
         try? FileManager.default.url(
@@ -51,8 +52,7 @@ public class Localite {
     
     /// Returns the last updated cached version for the provided language.
     func cachedVersion(for language: String) -> Int {
-        // TODO: get version for language
-        return 0
+        userSettings.getVersion(for: language)
     }
     
     ///  Clears Localite's cache, including any cached strings files and content.
@@ -60,9 +60,9 @@ public class Localite {
         localiteBundle = nil
         
         if let cacheFolderUrl {
-            // TODO: Clear user defaults
             try? FileManager.default.removeItem(at: cacheFolderUrl)
             createCacheDirectoryIfNeeded()
+            userSettings.clearVersions()
         }
     }
     
@@ -110,7 +110,7 @@ public class Localite {
             fileUrl = fileUrl.appendingPathComponent("Localizable.strings")
             try data.write(to: fileUrl)
             
-            // TODO: Set version for language
+            userSettings.set(version: version, for: language)
             computeLocaliteBundle(for: language)
             
         } catch(let error) {
