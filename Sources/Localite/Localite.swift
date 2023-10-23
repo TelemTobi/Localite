@@ -15,20 +15,11 @@ public class Localite {
     
     internal var localiteBundle: Bundle?
     
-    private let session = URLSession(configuration: .default)
-    private let userSettings = UserSettings()
-    
-    private var cacheDirectoryUrl: URL? {
-        try? FileManager.default.url(
-            for: .cachesDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-        ).appendingPathComponent(String(describing: Localite.self).lowercased())
-    }
+    private let filesStorage = FilesStorage()
+    private let versionsStorage = VersionsStorage()
+    private let urlSession = URLSession(configuration: .default)
     
     private init() {
-        createCacheDirectoryIfNeeded()
         swizzleLocalization()
     }
     
@@ -56,42 +47,29 @@ public class Localite {
     
     /// Returns the last updated cached version for the provided language.
     public func cachedVersion(for language: String) -> Int {
-        userSettings.getVersion(for: language)
+        versionsStorage.getVersion(for: language)
     }
     
     ///  Clears Localite's cache, including any cached strings files and content.
     public func clearCache() {
         localiteBundle = nil
-        userSettings.clearVersions()
-        
-        if let cacheDirectoryUrl {
-            try? FileManager.default.removeItem(at: cacheDirectoryUrl)
-            createCacheDirectoryIfNeeded()
-        }
+        filesStorage.clear()
+        versionsStorage.clear()
     }
     
     internal func shouldFetchStringsFile(of version: Int?, for language: String) -> Bool {
-        version == nil || (version ?? 0) > cachedVersion(for: language) ||
-            !FileManager.default.fileExists(atPath: cacheDirectoryUrl?.appendingPathComponent(language).relativePath ?? "") 
-    }
-    
-    private func createCacheDirectoryIfNeeded() {
-        if let cacheDirectoryUrl, !FileManager.default.fileExists(atPath: cacheDirectoryUrl.relativePath) {
-            try? FileManager.default.createDirectory(atPath: cacheDirectoryUrl.relativePath, withIntermediateDirectories: false)
-        }
+        version == nil || (version ?? 0) > cachedVersion(for: language) || !filesStorage.fileExists(for: language)
     }
     
     private func computeLocaliteBundle(for language: String) {
-        if let fileUrl = cacheDirectoryUrl?.appendingPathComponent(language),
-           FileManager.default.fileExists(atPath: fileUrl.relativePath) {
-            
+        if let fileUrl = filesStorage.cachedFileUrl(for: language) {
             localiteBundle = Bundle(path: fileUrl.relativePath)
             print("Localite - Cached \(language) file loaded successfully")
         }
     }
     
     private func fetchStringsFile(using url: URL, for language: String, completion: @escaping (Data) -> Void) {
-        session.dataTask(with: URLRequest(url: url)) { data, _, error in
+        urlSession.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let data, error == nil else {
                 print("Localite error - Fetching failed - " + (error?.localizedDescription ?? ""))
                 return
@@ -103,19 +81,9 @@ public class Localite {
     }
     
     private func store(_ data: Data, _ version: Int, for language: String) {
-        guard let cacheDirectoryUrl else { return }
-        
-        var fileUrl = cacheDirectoryUrl.appendingPathComponent(language)
-        
         do {
-            if !FileManager.default.fileExists(atPath: fileUrl.relativePath) {
-                try FileManager.default.createDirectory(atPath: fileUrl.relativePath, withIntermediateDirectories: false)
-            }
-            
-            fileUrl = fileUrl.appendingPathComponent("Localizable.strings")
-            try data.write(to: fileUrl)
-            
-            userSettings.set(version: version, for: language)
+            try filesStorage.store(data, for: language)
+            versionsStorage.set(version: version, for: language)
             computeLocaliteBundle(for: language)
             
         } catch(let error) {

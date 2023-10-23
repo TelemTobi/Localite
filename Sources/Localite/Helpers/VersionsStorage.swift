@@ -1,5 +1,5 @@
 //
-//  UserSettings.swift
+//  VersionsStorage.swift
 //
 //
 //  Created by Telem Tobi on 23/10/2023.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class UserSettings {
+class VersionsStorage {
     
     enum Keys {
         static let versions = #function
@@ -26,7 +26,7 @@ class UserSettings {
         return versions?[language] ?? 0
     }
     
-    func clearVersions() {
+    func clear() {
         localiteSuite?.removeObject(forKey: Keys.versions)
     }
 }
