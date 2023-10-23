@@ -32,26 +32,38 @@ public class Localite {
     }
     
     /// Initial Localite configuration. Call this method on startup or on selected language change.
-    /// If a `stringsFileUrl` is not provided, Localite will attempt to load a cached strings file for the selected language.
+    /// Loads strings file from the provided URL and stores it for the specific language provided.
+    /// if version is provided, file will be fetched only if the version is greater than the last fetched version.
+    /// Otherwise, if version is not provided, file will always be fetched.
     /// - Parameters:
     ///   - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
+    ///   - version: The version of the provided strings file. Versions are stored per language.
     ///   - language: The currently selected language to load.
-    public func configure(using stringsFileUrl: URL? = nil, for language: String) {
-        computeLocaliteBundle(for: language)
-        
-        if let stringsFileUrl {
-            fetchStringsFile(using: stringsFileUrl, for: language)
+    public func configure(using stringsFileUrl: URL, version: Int? = nil, for language: String) {
+        if shouldFetchStringsFile(of: version, for: language) {
+            fetchStringsFile(using: stringsFileUrl, for: language) { [unowned self] data in
+                store(data, version ?? 0, for: language)
+            }
+        } else {
+            computeLocaliteBundle(for: language)
         }
+    }
+    
+    /// Returns the last updated cached version for the provided language.
+    func cachedVersion(for language: String) -> Int {
+        // TODO: get version for language
+        return 0
     }
     
     ///  Clears Localite's cache, including any cached strings files and content.
     public func clearCache() {
         localiteBundle = nil
         
-        guard let cacheFolderUrl else { return }
-        
-        try? FileManager.default.removeItem(at: cacheFolderUrl)
-        createCacheDirectoryIfNeeded()
+        if let cacheFolderUrl {
+            // TODO: Clear user defaults
+            try? FileManager.default.removeItem(at: cacheFolderUrl)
+            createCacheDirectoryIfNeeded()
+        }
     }
     
     private func createCacheDirectoryIfNeeded() {
@@ -60,44 +72,50 @@ public class Localite {
         }
     }
     
+    private func shouldFetchStringsFile(of version: Int?, for language: String) -> Bool {
+        version == nil || (version ?? 0) > cachedVersion(for: language)
+    }
+    
     private func computeLocaliteBundle(for language: String) {
         if let fileUrl = cacheFolderUrl?.appendingPathComponent(language),
            FileManager.default.fileExists(atPath: fileUrl.relativePath) {
             
             localiteBundle = Bundle(path: fileUrl.relativePath)
+            print("Localite - Cached \(language) file loaded successfully")
         }
     }
     
-    private func fetchStringsFile(using url: URL, for language: String) {
-        session.dataTask(with: URLRequest(url: url)) { [unowned self] data, _, error in
+    private func fetchStringsFile(using url: URL, for language: String, completion: @escaping (Data) -> Void) {
+        session.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let data, error == nil else {
                 print("Localite error - Fetching failed - " + (error?.localizedDescription ?? ""))
                 return
             }
             
-            do {
-                try store(data, for: language)
-            } catch(let error) {
-                print("Localite error - File caching failed - " + error.localizedDescription)
-            }
+            completion(data)
         }
         .resume()
     }
     
-    private func store(_ data: Data, for language: String) throws {
+    private func store(_ data: Data, _ version: Int, for language: String) {
         guard let cacheFolderUrl else { return }
         
         var fileUrl = cacheFolderUrl.appendingPathComponent(language)
         
-        if !FileManager.default.fileExists(atPath: fileUrl.relativePath) {
-            try FileManager.default.createDirectory(atPath: fileUrl.relativePath, withIntermediateDirectories: false)
+        do {
+            if !FileManager.default.fileExists(atPath: fileUrl.relativePath) {
+                try FileManager.default.createDirectory(atPath: fileUrl.relativePath, withIntermediateDirectories: false)
+            }
+            
+            fileUrl = fileUrl.appendingPathComponent("Localizable.strings")
+            try data.write(to: fileUrl)
+            
+            // TODO: Set version for language
+            computeLocaliteBundle(for: language)
+            
+        } catch(let error) {
+            print("Localite error - File caching failed - " + error.localizedDescription)
         }
-        
-        fileUrl = fileUrl.appendingPathComponent("Localizable.strings")
-        try data.write(to: fileUrl)
-        
-        computeLocaliteBundle(for: language)
-        print("Localite - \(language) file loaded successfully")
     }
     
     private func swizzleLocalization() {
