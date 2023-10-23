@@ -7,10 +7,10 @@
 
 import Foundation
 
-/// Localite is a lightweight localization package designed for remote management of strings files.
+/// `Localite` is a lightweight localization package designed for the remote management of strings files.
 public class Localite {
     
-    /// Returns the shared Localite object.
+    /// Returns the shared `Localite` instance.
     public static let shared = Localite()
     
     internal var localiteBundle: Bundle?
@@ -32,14 +32,16 @@ public class Localite {
         swizzleLocalization()
     }
     
-    /// Initial Localite configuration. Call this method on startup or on selected language change.
-    /// Loads strings file from the provided URL and stores it for the specific language provided.
-    /// if version is provided, file will be fetched only if the version is greater than the last fetched version.
-    /// Otherwise, if version is not provided, file will always be fetched.
-    /// - Parameters:
-    ///   - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
-    ///   - version: The version of the provided strings file. Versions are stored per language.
-    ///   - language: The currently selected language to load.
+    /**
+     Initializes the Localite configuration.
+
+     Use this method to set up Localite for a specific language. It loads strings files from the provided URL and stores them for the specified language. If a version is provided, the file will only be fetched if the version is greater than the last fetched version. If no version is provided, the file will always be fetched.
+
+     - Parameters:
+       - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
+       - version: (Optional) The version of the provided strings file. Versions are stored per language.
+       - language: The currently selected language to load.
+     */
     public func configure(using stringsFileUrl: URL, version: Int? = nil, for language: String) {
         if shouldFetchStringsFile(of: version, for: language) {
             fetchStringsFile(using: stringsFileUrl, for: language) { [unowned self] data in
@@ -51,7 +53,7 @@ public class Localite {
     }
     
     /// Returns the last updated cached version for the provided language.
-    func cachedVersion(for language: String) -> Int {
+    public func cachedVersion(for language: String) -> Int {
         userSettings.getVersion(for: language)
     }
     
@@ -66,15 +68,16 @@ public class Localite {
         }
     }
     
+    internal func shouldFetchStringsFile(of version: Int?, for language: String) -> Bool {
+        version == nil || (version ?? 0) > cachedVersion(for: language)
+    }
+    
     private func createCacheDirectoryIfNeeded() {
         if let cacheFolderUrl, !FileManager.default.fileExists(atPath: cacheFolderUrl.relativePath) {
             try? FileManager.default.createDirectory(atPath: cacheFolderUrl.relativePath, withIntermediateDirectories: false)
         }
     }
     
-    private func shouldFetchStringsFile(of version: Int?, for language: String) -> Bool {
-        version == nil || (version ?? 0) > cachedVersion(for: language)
-    }
     
     private func computeLocaliteBundle(for language: String) {
         if let fileUrl = cacheFolderUrl?.appendingPathComponent(language),

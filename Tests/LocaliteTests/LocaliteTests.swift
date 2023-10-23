@@ -12,31 +12,27 @@ final class LocaliteTests: XCTestCase {
         Localite.shared.clearCache()
     }
     
-    private func configureLocalite(using stringsFileName: String? = nil, for language: String) {
-        var url: URL?
-        
-        if let stringsFileName {
-            guard let bundlePath = Bundle.module.path(forResource: stringsFileName, ofType: "strings") else {
-                XCTFail("Resource not found")
-                return
-            }
-    
-            url = URL(fileURLWithPath: bundlePath)
+    private func configureLocalite(using stringsFileName: String, version: Int? = nil, for language: String) {
+        guard let bundlePath = Bundle.module.path(forResource: stringsFileName, ofType: "strings") else {
+            XCTFail("Resource not found")
+            return
         }
+
+        let url = URL(fileURLWithPath: bundlePath)
         
-        Localite.shared.configure(using: url, for: language)
+        Localite.shared.configure(using: url, version: version, for: language)
         sleep(1)
     }
     
-    func testClearCacheMethod() {
-        configureLocalite(using: "english", for: "en")
-        Localite.shared.clearCache()
+    func testshouldFetchStringsFileMethod() {
+        XCTAssertTrue(Localite.shared.shouldFetchStringsFile(of: nil, for: "en"))
         
-        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello")
+        XCTAssertTrue(Localite.shared.shouldFetchStringsFile(of: 2, for: "en"))
         
-        // Make sure cached files are cleared as well
-        configureLocalite(for: "en")
-        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello")
+        configureLocalite(using: "english", version: 2, for: "en")
+        XCTAssertFalse(Localite.shared.shouldFetchStringsFile(of: 2, for: "en"))
+        
+        XCTAssertFalse(Localite.shared.shouldFetchStringsFile(of: 1, for: "en"))
     }
     
     func testConfigureMethod() {
@@ -48,9 +44,29 @@ final class LocaliteTests: XCTestCase {
         
         configureLocalite(using: "japanese", for: "ja")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "こんにちは、 世界")
+    }
+    
+    func testCachedVersionMethod() {
+        configureLocalite(using: "english", for: "en")
+        XCTAssertEqual(0, Localite.shared.cachedVersion(for: "en"))
         
-        // Make sure cached strings file is loaded properly, when a url is not provided
-        configureLocalite(for: "en")
-        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello World")
+        configureLocalite(using: "english", version: 1, for: "en")
+        XCTAssertEqual(1, Localite.shared.cachedVersion(for: "en"))
+        
+        configureLocalite(using: "hebrew", for: "he")
+        XCTAssertEqual(0, Localite.shared.cachedVersion(for: "he"))
+        
+        configureLocalite(using: "hebrew", version: 5, for: "he")
+        XCTAssertEqual(5, Localite.shared.cachedVersion(for: "he"))
+    }
+    
+    func testClearCacheMethod() {
+        configureLocalite(using: "english", version: 1, for: "en")
+        configureLocalite(using: "japanese", version: 5, for: "ja")
+        Localite.shared.clearCache()
+        
+        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello")
+        XCTAssertEqual(0, Localite.shared.cachedVersion(for: "en"))
+        XCTAssertEqual(0, Localite.shared.cachedVersion(for: "ja"))
     }
 }
