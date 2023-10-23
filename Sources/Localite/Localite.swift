@@ -18,7 +18,7 @@ public class Localite {
     private let session = URLSession(configuration: .default)
     private let userSettings = UserSettings()
     
-    private var cacheFolderUrl: URL? {
+    private var cacheDirectoryUrl: URL? {
         try? FileManager.default.url(
             for: .cachesDirectory,
             in: .userDomainMask,
@@ -35,11 +35,13 @@ public class Localite {
     /**
      Initializes the Localite configuration.
 
-     Use this method to set up Localite for a specific language. It loads strings files from the provided URL and stores them for the specified language. If a version is provided, the file will only be fetched if the version is greater than the last fetched version. If no version is provided, the file will always be fetched.
+     Use this method to set up Localite for a specific language. 
+     It loads strings files from the provided URL and stores them for the specified language.
+     If a version is provided, the file will only be fetched if the version is greater than the last fetched version. If no version is provided, the file will always be fetched.
 
      - Parameters:
        - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
-       - version: (Optional) The version of the provided strings file. Versions are stored per language.
+       - version (Optional): The version of the provided strings file. Versions are stored per language.
        - language: The currently selected language to load.
      */
     public func configure(using stringsFileUrl: URL, version: Int? = nil, for language: String) {
@@ -60,27 +62,27 @@ public class Localite {
     ///  Clears Localite's cache, including any cached strings files and content.
     public func clearCache() {
         localiteBundle = nil
+        userSettings.clearVersions()
         
-        if let cacheFolderUrl {
-            try? FileManager.default.removeItem(at: cacheFolderUrl)
+        if let cacheDirectoryUrl {
+            try? FileManager.default.removeItem(at: cacheDirectoryUrl)
             createCacheDirectoryIfNeeded()
-            userSettings.clearVersions()
         }
     }
     
     internal func shouldFetchStringsFile(of version: Int?, for language: String) -> Bool {
-        version == nil || (version ?? 0) > cachedVersion(for: language)
+        version == nil || (version ?? 0) > cachedVersion(for: language) ||
+            !FileManager.default.fileExists(atPath: cacheDirectoryUrl?.appendingPathComponent(language).relativePath ?? "") 
     }
     
     private func createCacheDirectoryIfNeeded() {
-        if let cacheFolderUrl, !FileManager.default.fileExists(atPath: cacheFolderUrl.relativePath) {
-            try? FileManager.default.createDirectory(atPath: cacheFolderUrl.relativePath, withIntermediateDirectories: false)
+        if let cacheDirectoryUrl, !FileManager.default.fileExists(atPath: cacheDirectoryUrl.relativePath) {
+            try? FileManager.default.createDirectory(atPath: cacheDirectoryUrl.relativePath, withIntermediateDirectories: false)
         }
     }
     
-    
     private func computeLocaliteBundle(for language: String) {
-        if let fileUrl = cacheFolderUrl?.appendingPathComponent(language),
+        if let fileUrl = cacheDirectoryUrl?.appendingPathComponent(language),
            FileManager.default.fileExists(atPath: fileUrl.relativePath) {
             
             localiteBundle = Bundle(path: fileUrl.relativePath)
@@ -101,9 +103,9 @@ public class Localite {
     }
     
     private func store(_ data: Data, _ version: Int, for language: String) {
-        guard let cacheFolderUrl else { return }
+        guard let cacheDirectoryUrl else { return }
         
-        var fileUrl = cacheFolderUrl.appendingPathComponent(language)
+        var fileUrl = cacheDirectoryUrl.appendingPathComponent(language)
         
         do {
             if !FileManager.default.fileExists(atPath: fileUrl.relativePath) {
