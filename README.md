@@ -39,7 +39,7 @@ Initialize the **Localite** configuration by setting up your app to use a specif
 ```swift
 import Localite
 
-// Initialize Localite with a specific language and strings file URL
+// Get the first language in user's preferred langauges your app supports
 Localite.shared.configure(using: yourStringsFileURL, for: "en", version: 1)
 ```
 
