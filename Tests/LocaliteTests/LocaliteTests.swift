@@ -20,7 +20,7 @@ final class LocaliteTests: XCTestCase {
 
         let url = URL(fileURLWithPath: bundlePath)
         
-        Localite.shared.configure(using: url, version: version, for: language)
+        Localite.shared.configure(using: url, for: language, version: version)
         sleep(1)
     }
     

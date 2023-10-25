@@ -35,7 +35,7 @@ public class Localite {
        - version (Optional): The version of the provided strings file. Versions are stored per language.
        - language: The currently selected language to load.
      */
-    public func configure(using stringsFileUrl: URL, version: Int? = nil, for language: String) {
+    public func configure(using stringsFileUrl: URL, for language: String, version: Int? = nil) {
         if shouldFetchStringsFile(of: version, for: language) {
             fetchStringsFile(using: stringsFileUrl, for: language) { [unowned self] data in
                 store(data, version ?? 0, for: language)
