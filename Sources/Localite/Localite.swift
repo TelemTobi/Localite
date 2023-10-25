@@ -27,7 +27,7 @@ public class Localite {
      Initializes the Localite configuration.
 
      Use this method to set up Localite for a specific language. 
-     It loads strings files from the provided URL and stores them for the specified language.
+     It loads strings files from the provided URL and stores them for offline using.
      If a version is provided, the file will only be fetched if the version is greater than the last fetched version. If no version is provided, the file will always be fetched.
 
      - Parameters:
@@ -43,6 +43,19 @@ public class Localite {
         } else {
             computeLocaliteBundle(for: language)
         }
+    }
+    
+    /**
+     Initializes the Localite configuration.
+
+     Use this method to set up Localite, when your app supports only one language.
+     It loads a strings file from the provided URL and stores it for offline using.
+
+     - Parameters:
+       - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
+     */
+    public func configure(using stringsFileUrl: URL) {
+        configure(using: stringsFileUrl, for: "base")
     }
     
     /// Returns the last updated cached version for the provided language.

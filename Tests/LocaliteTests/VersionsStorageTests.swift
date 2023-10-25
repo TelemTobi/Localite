@@ -7,11 +7,11 @@ final class VersionsStorageTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        versionsStorage.clear()
     }
     
     override func tearDown() {
         super.tearDown()
-        versionsStorage.clear()
     }
     
     func testVersionsSetting() {

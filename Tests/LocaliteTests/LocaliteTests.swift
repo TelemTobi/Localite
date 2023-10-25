@@ -5,14 +5,14 @@ final class LocaliteTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        Localite.shared.clearCache()
     }
     
     override func tearDown() {
         super.tearDown()
-        Localite.shared.clearCache()
     }
     
-    private func configureLocalite(using stringsFileName: String, version: Int? = nil, for language: String) {
+    private func configureLocalite(using stringsFileName: String, version: Int? = nil, for language: String = "base") {
         guard let bundlePath = Bundle.module.path(forResource: stringsFileName, ofType: "strings") else {
             XCTFail("Resource not found")
             return
@@ -44,6 +44,9 @@ final class LocaliteTests: XCTestCase {
         
         configureLocalite(using: "japanese", for: "ja")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "こんにちは、 世界")
+        
+        configureLocalite(using: "base")
+        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello Base")
     }
     
     func testCachedVersionMethod() {
