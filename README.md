@@ -54,6 +54,10 @@ Localite.shared.configure(using: yourStringsFileURL)
 
 <br/>
 
+The file will be cached for offline mode support.
+
+<br/>
+
 ### Fetching and Using Strings
 
 Once Localite is configured, you can access localized strings using the standard NSLocalizedString function. <br/>
