@@ -54,8 +54,8 @@ public class Localite {
      - Parameters:
        - stringsFileUrl: The URL from which to download the strings file. This URL can point to either a remote or local resource.
      */
-    public func configure(using stringsFileUrl: URL) {
-        configure(using: stringsFileUrl, for: "base")
+    public func configure(using stringsFileUrl: URL, version: Int? = nil) {
+        configure(using: stringsFileUrl, for: "base", version: version)
     }
     
     /// Returns the last updated cached version for the provided language.
