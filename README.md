@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="300" src="Resources/localite_logo.png">
+  <img height="180" src="Resources/localite_logo.png">
 </p>
 
 **Localite** is a lightweight localization package for iOS that simplifies the remote management of strings files. <br/>
