@@ -47,6 +47,11 @@ final class LocaliteTests: XCTestCase {
         
         configureLocalite(using: "base")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello Base")
+        
+        // Make sure cached file is loaded on failed fetch
+        Localite.shared.configure(using: URL(string: "https://nonWorkingUrl.io")!, for: "en")
+        sleep(1)
+        XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello World")
     }
     
     func testCachedVersionMethod() {
