@@ -96,7 +96,7 @@ Localite.shared.clearCache()
 
 - iOS 11.0+
 - Xcode 12.0+
-- Swift 5.0+
+- Swift 5.8+
 
 <br/>
 
