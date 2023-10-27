@@ -8,6 +8,10 @@ making it easier to keep your app's localization up to date without requiring fr
 
 <br/>
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FTelemTobi%2FLocalite%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/TelemTobi/Localite)   [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FTelemTobi%2FLocalite%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/TelemTobi/Localite)
+
+<br/>
+
 ## Features
 
 - Remote fetching and caching of strings files.
@@ -96,7 +100,7 @@ Localite.shared.clearCache()
 
 - iOS 11.0+
 - Xcode 12.0+
-- Swift 5.8+
+- Swift 5.7+
 
 <br/>
 
