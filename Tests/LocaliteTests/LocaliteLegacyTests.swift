@@ -1,7 +1,7 @@
 import XCTest
 @testable import Localite
 
-final class LocaliteTests: XCTestCase {
+final class LocaliteLegacyTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -20,7 +20,12 @@ final class LocaliteTests: XCTestCase {
 
         let url = URL(fileURLWithPath: bundlePath)
         
-        Localite.shared.configure(using: url, for: language, version: version)
+        Localite.shared.configure(
+            stringsFileUrl: url,
+            forLanguage: language,
+            version: version
+        )
+        
         sleep(1)
     }
     
@@ -49,7 +54,11 @@ final class LocaliteTests: XCTestCase {
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello Base")
         
         // Make sure cached file is loaded on failed fetch
-        Localite.shared.configure(using: URL(string: "https://nonWorkingUrl.io")!, for: "en")
+        Localite.shared.configure(
+            stringsFileUrl: URL(string: "https://nonWorkingUrl.io")!,
+            forLanguage: "en"
+        )
+        
         sleep(1)
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello World")
     }
