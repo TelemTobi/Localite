@@ -14,6 +14,24 @@ class VersionsStorage {
     }
     
     private let localiteSuite = UserDefaults(suiteName: String(describing: Localite.self).lowercased())
+
+    func clear() {
+        localiteSuite?.removeObject(forKey: Keys.versions)
+    }
+    
+    // MARK: - String catalog file
+    
+    // TODO: Test 👇
+    var cachedCatalogVersion: Int {
+        0 // TODO: ⚠️
+    }
+    
+    // TODO: Test 👇
+    func setCatalogVersion(_ version: Int) {
+        // TODO: ⚠️
+    }
+    
+    // MARK: - Legacy strings files
     
     func set(version: Int, for language: String) {
         var versions = localiteSuite?.dictionary(forKey: Keys.versions) as? [String : Int] ?? [String : Int]()
@@ -24,9 +42,5 @@ class VersionsStorage {
     func getVersion(for language: String) -> Int {
         let versions = localiteSuite?.dictionary(forKey: Keys.versions) as? [String : Int]
         return versions?[language] ?? 0
-    }
-    
-    func clear() {
-        localiteSuite?.removeObject(forKey: Keys.versions)
     }
 }

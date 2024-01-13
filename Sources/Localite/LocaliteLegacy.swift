@@ -61,7 +61,7 @@ extension Localite {
     }
     
     private func fetchStringsFile(using url: URL, for language: String, completion: @escaping (Data) -> Void) {
-        urlSession.dataTask(with: URLRequest(url: url)) { [weak self] data, response, error in
+        URLSession.shared.dataTask(with: URLRequest(url: url)) { [weak self] data, response, error in
             guard let data, error == nil, (response as? HTTPURLResponse)?.statusCode ?? 0 < 400 else {
                 print("Localite error - Fetching failed " + (error?.localizedDescription ?? ""))
                 self?.computeLocaliteBundle(for: language)

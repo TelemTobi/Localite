@@ -28,6 +28,39 @@ class FilesStorage {
         }
     }
     
+    // MARK: - String catalog file
+    
+    // TODO: Test 👇
+    var catalogFileExists: Bool {
+        FileManager.default.fileExists(atPath: cacheDirectoryUrl?.appendingPathComponent("catalog").relativePath ?? "")
+    }
+    
+    // TODO: Test 👇
+    var cachedCatalogFileUrl: URL? {
+        // TODO: ⚠️
+        if let fileUrl = cacheDirectoryUrl?.appendingPathComponent("catalog"),
+           FileManager.default.fileExists(atPath: fileUrl.relativePath) {
+            return fileUrl
+        }
+        
+        return nil
+    }
+    
+    // TODO: Test 👇
+    func storeCatalog(_ data: Data) throws {
+        guard let cacheDirectoryUrl else { return }
+        
+        var fileUrl = cacheDirectoryUrl.appendingPathComponent("catalog")
+        
+        if !FileManager.default.fileExists(atPath: fileUrl.relativePath) {
+            try FileManager.default.createDirectory(atPath: fileUrl.relativePath, withIntermediateDirectories: false)
+        }
+        
+        fileUrl = fileUrl.appendingPathComponent("Localizable.xcstrings")
+    }
+    
+    // MARK: - Legacy strings files
+    
     func store(_ data: Data, for language: String) throws {
         guard let cacheDirectoryUrl else { return }
         

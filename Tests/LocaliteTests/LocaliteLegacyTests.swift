@@ -40,7 +40,7 @@ final class LocaliteLegacyTests: XCTestCase {
         XCTAssertFalse(Localite.shared.shouldFetchStringsFile(of: 1, for: "en"))
     }
     
-    func testConfigureMethod() {
+    func testLegacyConfigureMethod() {
         configureLocalite(using: "english", for: "en")
         XCTAssertEqual(NSLocalizedString("Hello", comment: ""), "Hello World")
         
