@@ -6,19 +6,13 @@
 It allows you to download and cache localization files from a remote server, <br/>
 making it easier to keep your app's localization up to date without requiring frequent app updates.
 
-<br/>
-
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FTelemTobi%2FLocalite%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/TelemTobi/Localite)   [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FTelemTobi%2FLocalite%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/TelemTobi/Localite)
-
-<br/>
 
 ## Features
 
 - Remote fetching and caching of strings files.
 - Efficient version management for localization files.
 - Support for multiple languages.
-
-<br/>
 
 ## Installation
 
@@ -31,8 +25,6 @@ In Xcode, go to `File` > `Swift Packages` > `Add Package Dependency` and enter t
 ```
 https://github.com/TelemTobi/Localite.git
 ```
-
-<br/>
 
 ## Usage
 
@@ -47,8 +39,6 @@ import Localite
 Localite.shared.configure(using: yourStringsFileURL, for: "en", version: 1)
 ```
 
-<br/>
-
 Or, when your app supports only one language:
 
 ```swift
@@ -56,11 +46,7 @@ Or, when your app supports only one language:
 Localite.shared.configure(using: yourStringsFileURL)
 ```
 
-<br/>
-
 The file will be cached for offline mode support.
-
-<br/>
 
 ### Fetching and Using Strings
 
@@ -70,8 +56,6 @@ Localite will automatically fetch the strings file from the provided URL, cache 
 ```swift
 let localizedString = NSLocalizedString("hello_key", comment: "")
 ```
-
-<br/>
 
 ### Version Management
 
@@ -85,8 +69,6 @@ You can also check the cached version for a specific language:
 let cachedVersion = Localite.shared.cachedVersion(for: "en")
 ```
 
-<br/>
-
 ### Clearing Cache
 To clear the **Localite** cache, including cached strings files and content, use the clearCache method:
 
@@ -94,21 +76,15 @@ To clear the **Localite** cache, including cached strings files and content, use
 Localite.shared.clearCache()
 ```
 
-<br/>
-
 ## Requirements
 
 - iOS 11.0+
 - Xcode 12.0+
 - Swift 5.7+
 
-<br/>
-
 ## License
 
 **Localite** is available under the MIT license. See the [LICENSE](https://github.com/TelemTobi/Localite/blob/main/LICENSE.txt) file for more information.
-
-<br/>
 
 ## Contributing
 
